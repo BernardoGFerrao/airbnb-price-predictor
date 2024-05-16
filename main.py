@@ -50,9 +50,16 @@ print(base_airbnb[['experiences_offered']].value_counts())
 #Verificar se duas colunas são iguais:
 print((base_airbnb['host_listings_count'] == base_airbnb['host_total_listings_count']).value_counts())
 
-#Verificar quantidade de linhas vazias
-print(base_airbnb['square_feet'].isnull().sum())
 
 #Após a verificação no excel, escolhemos as colunas significativas para a nossa análise:
 colunas = ['host_response_time','host_response_rate','host_is_superhost','host_listings_count','latitude','longitude','property_type','room_type','accommodates','bathrooms','bedrooms','beds','bed_type','amenities','price','security_deposit','cleaning_fee','guests_included','extra_people','minimum_nights','maximum_nights','number_of_reviews','review_scores_rating','review_scores_accuracy','review_scores_cleanliness','review_scores_checkin','review_scores_communication','review_scores_location','review_scores_value','instant_bookable','is_business_travel_ready','cancellation_policy','ano','mes']
 base_airbnb = base_airbnb.loc[:, colunas]
+
+#Tratar valores None
+#Verificar quantidade de linhas vazias
+print(base_airbnb.isnull().sum())
+
+#Excluir os reviews, tempo de resposta, security deposit e taxa de limpeza
+for coluna in base_airbnb:
+    if base_airbnb[coluna].isnull.sum() >= 300000:
+        base_airbnb = base_airbnb.drop(coluna, axis=1)
