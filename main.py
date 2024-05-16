@@ -2,6 +2,7 @@
 import pandas as pd
 from tabulate import tabulate #-> print(tabulate(df.head(2), headers=df.columns, tablefmt='pretty'))
 import pathlib
+import numpy as np
 
 ###README:
 ###1 - Entendimento do Desafio que você quer resolver
@@ -31,7 +32,7 @@ for arquivo in caminho_bases.iterdir():
     base_airbnb = base_airbnb._append(df)
 
 
-##Limpeza dos dados:
+### 4 - Ajustes de Dados:
 #Para fazer a limpeza de dados é interessante utilizar o excel
 #Lista o nome de cada coluna
 print(list(base_airbnb.columns))
@@ -59,7 +60,26 @@ base_airbnb = base_airbnb.loc[:, colunas]
 #Verificar quantidade de linhas vazias
 print(base_airbnb.isnull().sum())
 
-#Excluir os reviews, tempo de resposta, security deposit e taxa de limpeza
+#Excluir as colunas: reviews, tempo de resposta, security deposit e taxa de limpeza
 for coluna in base_airbnb:
-    if base_airbnb[coluna].isnull.sum() >= 300000:
+    if base_airbnb[coluna].isnull().sum() >= 300000:
         base_airbnb = base_airbnb.drop(coluna, axis=1)
+
+#Excluir as linhas onde temos poucos valores None:
+base_airbnb = base_airbnb.dropna()
+print(base_airbnb.isnull().sum())
+
+##Verificar o tipo de dados de cada coluna:
+print('-'*60)
+print(base_airbnb.dtypes)
+print('-'*60)
+print(base_airbnb.iloc[0])
+#Tratando 'price'
+base_airbnb['price'] = base_airbnb['price'].str.replace('$', '')
+base_airbnb['price'] = base_airbnb['price'].str.replace(',', '')
+base_airbnb['price'] = base_airbnb['price'].astype(np.float32, copy=False)#float32 é mais ágil, em projetos assim é interessante
+#Tratando 'extra_people'
+base_airbnb['extra_people'] = base_airbnb['extra_people'].str.replace('$', '')
+base_airbnb['extra_people'] = base_airbnb['extra_people'].str.replace(',', '')
+base_airbnb['extra_people'] = base_airbnb['extra_people'].astype(np.float32, copy=False)#float32 é mais ágil, em projetos assim é interessante
+
