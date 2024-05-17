@@ -213,9 +213,17 @@ print(f'{nome_coluna} - Foram excluidas {linhas_removidas} linhas de Outliers')
 #Análise coluna beds(discreto):
 boxPlot(base_airbnb['beds'])
 barra(base_airbnb, base_airbnb['beds'])
-#Casas com 9 acomodações serão excluidas, não é o objetivo do projeto
 base_airbnb, linhas_removidas, nome_coluna = excluirOutliers(base_airbnb, 'beds')
 print(f'{nome_coluna} - Foram excluidas {linhas_removidas} linhas de Outliers')
+
+#Análise coluna guests_included(discreto):
+boxPlot(base_airbnb['guests_included'])
+barra(base_airbnb, base_airbnb['guests_included'])
+sns.barplot(x=base_airbnb['guests_included'].value_counts().index, y=base_airbnb['guests_included'].value_counts())
+#Não parece uma boa métrica, vamos remover a coluna da análise
+base_airbnb = base_airbnb.drop('guests_included', axis=1)
+
+
 
 
 
