@@ -217,14 +217,27 @@ base_airbnb, linhas_removidas, nome_coluna = excluirOutliers(base_airbnb, 'beds'
 print(f'{nome_coluna} - Foram excluidas {linhas_removidas} linhas de Outliers')
 
 #Análise coluna guests_included(discreto):
-boxPlot(base_airbnb['guests_included'])
-barra(base_airbnb, base_airbnb['guests_included'])
+#boxPlot(base_airbnb['guests_included'])
+#barra(base_airbnb, base_airbnb['guests_included'])
 sns.barplot(x=base_airbnb['guests_included'].value_counts().index, y=base_airbnb['guests_included'].value_counts())
 #Não parece uma boa métrica, vamos remover a coluna da análise
 base_airbnb = base_airbnb.drop('guests_included', axis=1)
 
+#Análise coluna minimum_nights(discreto):
+boxPlot(base_airbnb['minimum_nights'])
+barra(base_airbnb, base_airbnb['minimum_nights'])
+base_airbnb, linhas_removidas, nome_coluna = excluirOutliers(base_airbnb, 'minimum_nights')
+print(f'{nome_coluna} - Foram excluidas {linhas_removidas} linhas de Outliers')
+
+#Análise coluna maximum_nights(discreto):
+boxPlot(base_airbnb['maximum_nights'])
+barra(base_airbnb, base_airbnb['maximum_nights'])
+#Parece haver o mal preenchimento desse campo por parte dos usuários, sendo assim, devemos remover essa coluna para não atrapalhar a análise
+base_airbnb = base_airbnb.drop('maximum_nights', axis=1)
 
 
 
 
-##. Confirmar Analyzing the accomodase todas as features que temos fazem realmente sentido para o nosso modelo
+
+
+##. Confirmar que todas as features que temos fazem realmente sentido para o nosso modelo
