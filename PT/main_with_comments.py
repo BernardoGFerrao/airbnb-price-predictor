@@ -109,11 +109,11 @@ def limites(coluna):
     amplitude = q3 - q1
     limSup = q3 + 1.5 * amplitude
     limInf = q1 - 1.5 * amplitude
-    return limSup, limInf
+    return limInf, limSup
 def excluirOutliers(df, nome_coluna):
     #Exclusão dos outliers
     qtde_linhas = df.shape[0]#Indice 0 -> Linhas 1 -> Colunas
-    limSup, limInf = limites(df[nome_coluna])
+    limInf, limSup = limites(df[nome_coluna])
     df = df.loc[(df[nome_coluna] >= limInf) & (df[nome_coluna] <= limSup), :]
     #Conta quantas linhas foram excluidas
     linhas_removidas = qtde_linhas - df.shape[0]
@@ -125,7 +125,7 @@ def boxPlot(coluna):
     sns.boxplot(x=coluna, ax=ax1)
     ax1.set_title('Com outliers')
 
-    lim_sup, lim_inf = limites(coluna)
+    lim_inf, lim_sup = limites(coluna)
     ax2.set_xlim(lim_inf, lim_sup)
     sns.boxplot(x=coluna, ax=ax2)
     ax2.set_title('Sem outliers')
@@ -141,24 +141,51 @@ def histograma(base, coluna):
     ax1.set_title('Com outliers')
 
     # Histograma com limites em x
-    lim_sup, lim_inf = limites(base[coluna])
+    lim_inf, lim_sup = limites(base[coluna])
     ax2.set_xlim(lim_inf, lim_sup)
     sns.histplot(data=base, x=coluna, element='bars', kde=True, binwidth=50, ax=ax2)
     ax2.set_title('Sem outliers')
 
     fig.suptitle('Com outliers vs Sem outliers', fontsize=16)
     plt.show()
+def barra(base, coluna):
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    fig.set_size_inches(15, 5)
 
-#Como estamos construindo um modelo para imóveis comuns, valores acima do limite superior são considerados de luxo, fugindo do objetivo principal.
-#Análise coluna price:
+    # Ensure coluna is a pandas Series object
+    if isinstance(coluna, str):
+        coluna = base[coluna]  # Assuming 'coluna' is a column name in the DataFrame 'base'
+
+    # Gráfico de barras sem limites em x (com outliers)
+    sns.barplot(x=coluna.value_counts().index, y=coluna.value_counts(), ax=ax1)
+    ax1.set_title('Com outliers')
+
+    # Gráfico de barras com limites em x (sem outliers)
+    sns.barplot(x=coluna.value_counts().index, y=coluna.value_counts(), ax=ax2)
+    ax2.set_xlim(limites(coluna))  # Assuming you have a function named 'limites' defined elsewhere
+    ax2.set_title('Sem outliers')
+
+    fig.suptitle('Com outliers vs Sem outliers', fontsize=16)
+    plt.show()
+
+#Análise coluna price(contínuo):
 boxPlot(base_airbnb['price'])
 histograma(base_airbnb, 'price')
+#Como estamos construindo um modelo para imóveis comuns, valores acima do limite superior são considerados de luxo, fugindo do objetivo principal.
 base_airbnb, linhas_removidas, nome_coluna = excluirOutliers(base_airbnb, 'price')
 print(f'{nome_coluna} - Foram excluidas {linhas_removidas} linhas de Outliers')
 
-#Análise coluna extra_people:
+#Análise coluna extra_people(contínuo):
 boxPlot(base_airbnb['extra_people'])
 histograma(base_airbnb, 'extra_people')
 base_airbnb, linhas_removidas, nome_coluna = excluirOutliers(base_airbnb, 'extra_people')
 print(f'{nome_coluna} - Foram excluidas {linhas_removidas} linhas de Outliers')
+
+#Análise coluna host_listings_count(discreto):
+boxPlot(base_airbnb['host_listings_count'])
+barra(base_airbnb, base_airbnb['host_listings_count'])
+#Podemos excluir os outliers, pois hosts com mais de 6 imóveis no airbnb não é o público alvo do objetivo(imobiliarias,etc).
+base_airbnb, linhas_removidas, nome_coluna = excluirOutliers(base_airbnb, 'host_listings_count')
+print(f'{nome_coluna} - Foram excluidas {linhas_removidas} linhas de Outliers')
+
 ##. Confirmar se todas as features que temos fazem realmente sentido para o nosso modelo
