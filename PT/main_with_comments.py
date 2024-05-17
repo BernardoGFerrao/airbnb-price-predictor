@@ -195,4 +195,13 @@ barra(base_airbnb, base_airbnb['accomodates'])
 base_airbnb, linhas_removidas, nome_coluna = excluirOutliers(base_airbnb, 'accomodates')
 print(f'{nome_coluna} - Foram excluidas {linhas_removidas} linhas de Outliers')
 
-##. Confirmar se todas as features que temos fazem realmente sentido para o nosso modelo
+#Análise coluna bathrooms(discreto):
+boxPlot(base_airbnb['bathrooms'])
+#A função de gráfico de barra estava dando erro para esse caso, logo iremos tratar especificamente:
+plt.figure(figsize=(15, 5))
+sns.barplot(x=base_airbnb['bathrooms'].value_counts().index, y=base_airbnb['bathrooms'].value_counts())
+plt.show()
+base_airbnb, linhas_removidas, nome_coluna = excluirOutliers(base_airbnb, 'bathrooms')
+print(f'{nome_coluna} - Foram excluidas {linhas_removidas} linhas de Outliers')
+
+##. Confirmar Analyzing the accomodase todas as features que temos fazem realmente sentido para o nosso modelo
