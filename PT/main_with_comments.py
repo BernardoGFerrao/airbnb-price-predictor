@@ -86,7 +86,6 @@ base_airbnb['extra_people'] = base_airbnb['extra_people'].str.replace(',', '')
 base_airbnb['extra_people'] = base_airbnb['extra_people'].astype(np.float32, copy=False)#float32 é mais ágil, em projetos assim é interessante
 
 ### 5 - Análise exploratória:
-
 ##. Ver a correlação entre as features(Caso tenha colunas muito correlacionadas, poderiamos excluir uma delas)
 plt.figure(figsize=(15, 10))  # Ajustando o tamanho da figura
 
@@ -104,5 +103,29 @@ plt.subplots_adjust(bottom=0.2)
 plt.show()
 
 ##. Excluir outliers(Q1 - 1.5*Amplitude e Q3 + 1.5*Amplitude)(Amplitude = Q3 - Q1)
+def limites(coluna):
+    q1 = coluna.quantile(0.25)
+    q3 = coluna.quantile(0.75)
+    amplitude = q3 - q1
+    limSup = q3 + 1.5 * amplitude
+    limInf = q1 - 1.5 * amplitude
+    return limSup, limInf
+
+def boxPlot(coluna):
+    fig, (ax1, ax2) = plt.subplot(1, 2)
+    fig.set_size_inches(15, 5)
+
+    sns.boxplot(x=coluna, ax=ax1)
+
+    ax2.set_xlim(limites(coluna))
+    sns.boxplot(x=coluna, ax=ax2)
+
+    plt.show()
+
+def histograma(coluna):
+    plt.figure(figsize=(15, 5))
+    sns.displot(coluna, hist=True)
+
+    plt.show()
 
 ##. Confirmar se todas as features que temos fazem realmente sentido para o nosso modelo
