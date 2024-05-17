@@ -188,4 +188,11 @@ barra(base_airbnb, base_airbnb['host_listings_count'])
 base_airbnb, linhas_removidas, nome_coluna = excluirOutliers(base_airbnb, 'host_listings_count')
 print(f'{nome_coluna} - Foram excluidas {linhas_removidas} linhas de Outliers')
 
+#Análise coluna accomodates(discreto):
+boxPlot(base_airbnb['accomodates'])
+barra(base_airbnb, base_airbnb['accomodates'])
+#Casas com 9 acomodações serão excluidas, não é o objetivo do projeto
+base_airbnb, linhas_removidas, nome_coluna = excluirOutliers(base_airbnb, 'accomodates')
+print(f'{nome_coluna} - Foram excluidas {linhas_removidas} linhas de Outliers')
+
 ##. Confirmar se todas as features que temos fazem realmente sentido para o nosso modelo
