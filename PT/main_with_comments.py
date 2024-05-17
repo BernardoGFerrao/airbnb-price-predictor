@@ -110,9 +110,16 @@ def limites(coluna):
     limSup = q3 + 1.5 * amplitude
     limInf = q1 - 1.5 * amplitude
     return limSup, limInf
-
+def excluirOutliers(df, nome_coluna):
+    #Exclusão dos outliers
+    qtde_linhas = df.shape[0]#Indice 0 -> Linhas 1 -> Colunas
+    limSup, limInf = limites(df[nome_coluna])
+    df = df.loc[(df[nome_coluna] >= limInf) & (df[nome_coluna] <= limSup), :]
+    #Conta quantas linhas foram excluidas
+    linhas_removidas = qtde_linhas - df.shape[0]
+    return df, linhas_removidas
 def boxPlot(coluna):
-    fig, (ax1, ax2) = plt.subplot(1, 2)
+    fig, (ax1, ax2) = plt.subplots(1, 2)
     fig.set_size_inches(15, 5)
 
     sns.boxplot(x=coluna, ax=ax1)
@@ -121,11 +128,19 @@ def boxPlot(coluna):
     sns.boxplot(x=coluna, ax=ax2)
 
     plt.show()
-
-def histograma(coluna):
+def histograma(base, coluna):
     plt.figure(figsize=(15, 5))
-    sns.displot(coluna, hist=True)
+
+    # Cria o histograma com KDE
+    sns.histplot(data=base, x=coluna, element='bars', kde=True, binwidth=50)
 
     plt.show()
+
+#Como estamos construindo um modelo para imóveis comuns, valores acima do limite superior são considerados de luxo, fugindo do objetivo principal.
+#Análse coluna price:
+boxPlot(base_airbnb['price'])
+base_airbnb, linhas_removidas = excluirOutliers(base_airbnb, 'price')
+print(f'Foram excluidas {linhas_removidas} linhas')
+histograma(base_airbnb, base_airbnb['price'])
 
 ##. Confirmar se todas as features que temos fazem realmente sentido para o nosso modelo
