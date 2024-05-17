@@ -117,30 +117,48 @@ def excluirOutliers(df, nome_coluna):
     df = df.loc[(df[nome_coluna] >= limInf) & (df[nome_coluna] <= limSup), :]
     #Conta quantas linhas foram excluidas
     linhas_removidas = qtde_linhas - df.shape[0]
-    return df, linhas_removidas
+    return df, linhas_removidas, nome_coluna
 def boxPlot(coluna):
     fig, (ax1, ax2) = plt.subplots(1, 2)
     fig.set_size_inches(15, 5)
 
     sns.boxplot(x=coluna, ax=ax1)
+    ax1.set_title('Com outliers')
 
-    ax2.set_xlim(limites(coluna))
+    lim_sup, lim_inf = limites(coluna)
+    ax2.set_xlim(lim_inf, lim_sup)
     sns.boxplot(x=coluna, ax=ax2)
+    ax2.set_title('Sem outliers')
 
+    fig.suptitle('Com outliers vs Sem outliers', fontsize=16)
     plt.show()
 def histograma(base, coluna):
-    plt.figure(figsize=(15, 5))
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    fig.set_size_inches(15, 5)
 
-    # Cria o histograma com KDE
-    sns.histplot(data=base, x=coluna, element='bars', kde=True, binwidth=50)
+    # Histograma sem limites em x
+    sns.histplot(data=base, x=coluna, element='bars', kde=True, binwidth=50, ax=ax1)
+    ax1.set_title('Com outliers')
 
+    # Histograma com limites em x
+    lim_sup, lim_inf = limites(base[coluna])
+    ax2.set_xlim(lim_inf, lim_sup)
+    sns.histplot(data=base, x=coluna, element='bars', kde=True, binwidth=50, ax=ax2)
+    ax2.set_title('Sem outliers')
+
+    fig.suptitle('Com outliers vs Sem outliers', fontsize=16)
     plt.show()
 
 #Como estamos construindo um modelo para imóveis comuns, valores acima do limite superior são considerados de luxo, fugindo do objetivo principal.
-#Análse coluna price:
+#Análise coluna price:
 boxPlot(base_airbnb['price'])
-base_airbnb, linhas_removidas = excluirOutliers(base_airbnb, 'price')
-print(f'Foram excluidas {linhas_removidas} linhas')
-histograma(base_airbnb, base_airbnb['price'])
+histograma(base_airbnb, 'price')
+base_airbnb, linhas_removidas, nome_coluna = excluirOutliers(base_airbnb, 'price')
+print(f'{nome_coluna} - Foram excluidas {linhas_removidas} linhas de Outliers')
 
+#Análise coluna extra_people:
+boxPlot(base_airbnb['extra_people'])
+histograma(base_airbnb, 'extra_people')
+base_airbnb, linhas_removidas, nome_coluna = excluirOutliers(base_airbnb, 'extra_people')
+print(f'{nome_coluna} - Foram excluidas {linhas_removidas} linhas de Outliers')
 ##. Confirmar se todas as features que temos fazem realmente sentido para o nosso modelo
