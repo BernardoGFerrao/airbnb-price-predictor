@@ -217,8 +217,6 @@ base_airbnb, linhas_removidas, nome_coluna = excluirOutliers(base_airbnb, 'beds'
 print(f'{nome_coluna} - Foram excluidas {linhas_removidas} linhas de Outliers')
 
 #Análise coluna guests_included(discreto):
-#boxPlot(base_airbnb['guests_included'])
-#barra(base_airbnb, base_airbnb['guests_included'])
 sns.barplot(x=base_airbnb['guests_included'].value_counts().index, y=base_airbnb['guests_included'].value_counts())
 #Não parece uma boa métrica, vamos remover a coluna da análise
 base_airbnb = base_airbnb.drop('guests_included', axis=1)
@@ -241,8 +239,24 @@ barra(base_airbnb, base_airbnb['number_of_reviews'])
 #Poderiamos tirar ou não essa coluna da análise, a fim de desempenho computacional, irei tirar:
 base_airbnb = base_airbnb.drop('number_of_reviews', axis=1)
 
+def countplot(base, coluna):
+    plt.figure(figsize=(15, 5))
+    grafico = sns.countplot(x=coluna, data=base)
+    grafico.tick_params(axis='x', rotation=90)
+    plt.show()
 
+# Análise coluna property_type (categórica):
+print(base_airbnb['property_type'].value_counts())
+countplot(base_airbnb, 'property_type')
 
+tabela_tipos_casa = base_airbnb['property_type'].value_counts()
+colunas_agrupar = []
+for tipo in tabela_tipos_casa.index:
+    if tabela_tipos_casa[tipo] < 2000:
+        colunas_agrupar.append(tipo)
+for tipo in colunas_agrupar:
+    base_airbnb.loc[base_airbnb['property_type'] == tipo, 'property_type'] = 'Other'
+print(base_airbnb['property_type'].value_counts())
 
 
 ##. Confirmar que todas as features que temos fazem realmente sentido para o nosso modelo
