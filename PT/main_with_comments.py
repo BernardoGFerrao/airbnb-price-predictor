@@ -235,6 +235,11 @@ barra(base_airbnb, base_airbnb['maximum_nights'])
 #Parece haver o mal preenchimento desse campo por parte dos usuários, sendo assim, devemos remover essa coluna para não atrapalhar a análise
 base_airbnb = base_airbnb.drop('maximum_nights', axis=1)
 
+#Análise coluna number_of_reviews(discreto):
+boxPlot(base_airbnb['number_of_reviews'])
+barra(base_airbnb, base_airbnb['number_of_reviews'])
+#Poderiamos tirar ou não essa coluna da análise, a fim de desempenho computacional, irei tirar:
+base_airbnb = base_airbnb.drop('number_of_reviews', axis=1)
 
 
 
