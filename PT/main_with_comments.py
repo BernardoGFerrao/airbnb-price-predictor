@@ -315,10 +315,10 @@ barra(base_airbnb, base_airbnb['n_amenities'])
 base_airbnb, linhas_removidas, nome_coluna = excluirOutliers(base_airbnb, 'n_amenities')
 print(f'{nome_coluna} - Foram excluídas {linhas_removidas} linhas de Outliers')
 
-# Análise colunas de mapa (Latitude e Longitude)
+# Criação do mapa de densidade para visualização das áreas com maiores preços
 amostra = base_airbnb.sample(n=50000)
-centro_mapa = {'lat':amostra.latitude.mean(), 'lon':amostra.longitude.mean()}
-mapa = px.density_mapbox(amostra, lat='latitude', lon='longitude',z='price', radius=2.5,
+centro_mapa = {'lat': amostra.latitude.mean(), 'lon': amostra.longitude.mean()}
+mapa = px.density_mapbox(amostra, lat='latitude', lon='longitude', z='price', radius=2.5,
             center=centro_mapa, zoom=10,
             mapbox_style='stamen-terrain')
 mapa.update_layout(mapbox_style="open-street-map")
