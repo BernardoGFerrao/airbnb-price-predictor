@@ -104,8 +104,6 @@ plt.subplots_adjust(bottom=0.2)
 plt.show()
 
 ##. Excluir outliers(Q1 - 1.5*Amplitude e Q3 + 1.5*Amplitude)(Amplitude = Q3 - Q1)
-
-
 def limites(coluna):
     q1 = coluna.quantile(0.25)
     q3 = coluna.quantile(0.75)
@@ -187,7 +185,6 @@ def countplot(base, coluna):
     plt.tight_layout()  # Ajusta automaticamente o layout para evitar cortes
     plt.show()
 
-
 # Análise coluna price(contínuo):
 boxPlot(base_airbnb['price'])
 histograma(base_airbnb, 'price')
@@ -259,7 +256,6 @@ barra(base_airbnb, base_airbnb['number_of_reviews'])
 # Poderíamos tirar ou não essa coluna da análise, a fim de desempenho computacional, irei tirar:
 base_airbnb = base_airbnb.drop('number_of_reviews', axis=1)
 
-
 # Análise coluna property_type(categórica):
 print(base_airbnb['property_type'].value_counts())
 countplot(base_airbnb, 'property_type')
@@ -324,6 +320,16 @@ mapa = px.density_mapbox(amostra, lat='latitude', lon='longitude', z='price', ra
 mapa.update_layout(mapbox_style="open-street-map")
 mapa.show()
 
+##. Encoding(Ajusta as features para facilitar o trabalho do modelo: Categóricas, Boolean, etc)
+#Boolean -> V/F = 1/0
+colunas_vf = ['host_is_superhost', 'instant_bookable', 'is_business_travel_ready']
+base_airbnb_cod = base_airbnb.copy()
+for coluna in colunas_vf:
+    base_airbnb_cod.loc[base_airbnb_cod[coluna] == 't', coluna] = 1
+    base_airbnb_cod.loc[base_airbnb_cod[coluna] == 'f', coluna] = 0
+
+#Categóricas -> OneHotEncoding ou DummyVariables
+colunas_cat = ['property_type', 'room_type', 'bed_type', 'cancellation_policy']
 ##. Confirmar que todas as features que temos fazem realmente sentido para o nosso modelo
 
 
