@@ -167,6 +167,12 @@ def barra(base, coluna):
 
     fig.suptitle('Com outliers vs Sem outliers', fontsize=16)
     plt.show()
+def countplot(base, coluna):
+    plt.figure(figsize=(15, 5))
+    grafico = sns.countplot(x=coluna, data=base)
+    grafico.tick_params(axis='x', rotation=90)
+    plt.tight_layout()  # Ajusta automaticamente o layout para evitar cortes
+    plt.show()
 
 #Análise coluna price(contínuo):
 boxPlot(base_airbnb['price'])
@@ -239,16 +245,10 @@ barra(base_airbnb, base_airbnb['number_of_reviews'])
 #Poderiamos tirar ou não essa coluna da análise, a fim de desempenho computacional, irei tirar:
 base_airbnb = base_airbnb.drop('number_of_reviews', axis=1)
 
-def countplot(base, coluna):
-    plt.figure(figsize=(15, 5))
-    grafico = sns.countplot(x=coluna, data=base)
-    grafico.tick_params(axis='x', rotation=90)
-    plt.show()
 
-# Análise coluna property_type (categórica):
+# Análise coluna property_type(categórica):
 print(base_airbnb['property_type'].value_counts())
 countplot(base_airbnb, 'property_type')
-
 tabela_tipos_casa = base_airbnb['property_type'].value_counts()
 colunas_agrupar = []
 for tipo in tabela_tipos_casa.index:
@@ -258,5 +258,35 @@ for tipo in colunas_agrupar:
     base_airbnb.loc[base_airbnb['property_type'] == tipo, 'property_type'] = 'Other'
 print(base_airbnb['property_type'].value_counts())
 
+# Análise coluna room_type (categórica):
+print(base_airbnb['room_type'].value_counts())
+countplot(base_airbnb, 'room_type')
+
+# Análise coluna bed_type(categórica):
+print(base_airbnb['bed_type'].value_counts())
+countplot(base_airbnb, 'bed_type')
+#Agrupando tipos de cama que são minorias
+colunas_agrupar = []
+tabela_tipos_cama = base_airbnb['bed_type'].value_counts()
+for tipo in tabela_tipos_cama.index:
+    if tabela_tipos_cama[tipo] < 10000:
+        colunas_agrupar.append(tipo)
+for tipo in colunas_agrupar:
+    base_airbnb.loc[base_airbnb['bed_type'] == tipo, 'bed_type'] = 'Other'
+print(base_airbnb['bed_type'].value_counts())
+
+
+# Análise coluna cancellation_policy(categórica):
+print(base_airbnb['cancellation_policy'].value_counts())
+countplot(base_airbnb, 'cancellation_policy')
+#Agrupando tipos de politicas de cancelamento muito parecidas
+colunas_agrupar = []
+tabela_tipos_politica = base_airbnb['cancellation_policy'].value_counts()
+for tipo in tabela_tipos_politica.index:
+    if tabela_tipos_politica[tipo] < 10000:
+        colunas_agrupar.append(tipo)
+for tipo in colunas_agrupar:
+    base_airbnb.loc[base_airbnb['cancellation_policy'] == tipo, 'cancellation_policy'] = 'strict'
+print(base_airbnb['cancellation_policy'].value_counts())
 
 ##. Confirmar que todas as features que temos fazem realmente sentido para o nosso modelo
