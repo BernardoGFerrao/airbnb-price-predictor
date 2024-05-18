@@ -330,6 +330,7 @@ for coluna in colunas_vf:
 
 #Categóricas -> OneHotEncoding ou DummyVariables
 colunas_cat = ['property_type', 'room_type', 'bed_type', 'cancellation_policy']
+base_airbnb_cod = pd.get_dummies(data=base_airbnb_cod, columns=colunas_cat)
 ##. Confirmar que todas as features que temos fazem realmente sentido para o nosso modelo
 
 
