@@ -1,25 +1,26 @@
-#Bibliotecas
+# Bibliotecas
 import pandas as pd
-from tabulate import tabulate #-> print(tabulate(df.head(2), headers=df.columns, tablefmt='pretty'))
 import pathlib
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+from tabulate import tabulate  # -> print(tabulate(df.head(2), headers=df.columns, tablefmt='pretty'))
+import plotly.express as px
 
-###README:
-###1 - Entendimento do Desafio que você quer resolver
-###2 - Entendimento da Empresa/Área
+### README:
+### 1 - Entendimento do Desafio que você quer resolver
+### 2 - Entendimento da Empresa/Área
 
-###3 - Extração/Obtenção de Dados
+### 3 - Extração/Obtenção de Dados
 caminho_bases = pathlib.Path('../dataset')
 
 base_airbnb = pd.DataFrame()
 
 meses = {'jan': 1, 'fev': 2, 'mar': 3, 'abr': 4, 'mai': 5, 'jun': 6, 'jul': 7, 'ago': 8, 'set': 9, 'out': 10, 'nov': 11, 'dez': 12}
 
-#iterdir: Lista de arquivos dentro do caminho
+# iterdir: Lista de arquivos dentro do caminho
 for arquivo in caminho_bases.iterdir():
-    #Adicionando a coluna mês e ano
+    # Adicionando a coluna mês e ano
     nome_mes = arquivo.name[:3]
     numero_mes = meses[nome_mes]
 
@@ -30,19 +31,19 @@ for arquivo in caminho_bases.iterdir():
 
     df['ano'] = ano
     df['mes'] = numero_mes
-    #Unindo todos dfs em um grande df
+    # Unindo todos dfs em um grande df
     base_airbnb = base_airbnb._append(df)
 
 
 ### 4 - Ajustes de Dados:
-#Para fazer a limpeza de dados é interessante utilizar o excel
-#Lista o nome de cada coluna
+# Para fazer a limpeza de dados é interessante utilizar o excel
+# Lista o nome de cada coluna
 print(list(base_airbnb.columns))
 
-#Cria um arquivo excel com as 1000 primeiras linhas
+# Cria um arquivo excel com as 1000 primeiras linhas
 base_airbnb.head(1000).to_csv('primeiros_registros.csv', sep=';')
 
-#Tirar colunas desnecessárias:
+# Tirar colunas desnecessárias:
 # 1 - Ids, Links e informações não relevantes para o modelo
 # 2 - Colunas repetidas EX: Data vs Ano/Mês
 # 3 - Colunas preenchidas com texto livre -> Não serve para a análise
@@ -50,43 +51,43 @@ base_airbnb.head(1000).to_csv('primeiros_registros.csv', sep=';')
 
 print(base_airbnb[['experiences_offered']].value_counts())
 
-#Verificar se duas colunas são iguais:
+# Verificar se duas colunas são iguais:
 print((base_airbnb['host_listings_count'] == base_airbnb['host_total_listings_count']).value_counts())
 
 
-#Após a verificação no excel, escolhemos as colunas significativas para a nossa análise:
-colunas = ['host_response_time','host_response_rate','host_is_superhost','host_listings_count','latitude','longitude','property_type','room_type','accommodates','bathrooms','bedrooms','beds','bed_type','amenities','price','security_deposit','cleaning_fee','guests_included','extra_people','minimum_nights','maximum_nights','number_of_reviews','review_scores_rating','review_scores_accuracy','review_scores_cleanliness','review_scores_checkin','review_scores_communication','review_scores_location','review_scores_value','instant_bookable','is_business_travel_ready','cancellation_policy','ano','mes']
+# Após a verificação no excel, escolhemos as colunas significativas para a nossa análise:
+colunas = ['host_response_time', 'host_response_rate', 'host_is_superhost', 'host_listings_count', 'latitude', 'longitude', 'property_type', 'room_type', 'accommodates', 'bathrooms', 'bedrooms', 'beds', 'bed_type', 'amenities', 'price', 'security_deposit', 'cleaning_fee', 'guests_included', 'extra_people', 'minimum_nights', 'maximum_nights', 'number_of_reviews', 'review_scores_rating', 'review_scores_accuracy', 'review_scores_cleanliness', 'review_scores_checkin', 'review_scores_communication', 'review_scores_location', 'review_scores_value', 'instant_bookable', 'is_business_travel_ready', 'cancellation_policy', 'ano', 'mes']
 base_airbnb = base_airbnb.loc[:, colunas]
 
-#Tratar valores None
-#Verificar quantidade de linhas vazias
+# Tratar valores None
+# Verificar quantidade de linhas vazias
 print(base_airbnb.isnull().sum())
 
-#Excluir as colunas: reviews, tempo de resposta, security deposit e taxa de limpeza
+# Excluir as colunas: reviews, tempo de resposta, security deposit e taxa de limpeza
 for coluna in base_airbnb:
     if base_airbnb[coluna].isnull().sum() >= 300000:
         base_airbnb = base_airbnb.drop(coluna, axis=1)
 
-#Excluir as linhas onde temos poucos valores None:
+# Excluir as linhas onde temos poucos valores None:
 base_airbnb = base_airbnb.dropna()
 print(base_airbnb.isnull().sum())
 
-##Verificar o tipo de dados de cada coluna:
+## Verificar o tipo de dados de cada coluna:
 print('-'*60)
 print(base_airbnb.dtypes)
 print('-'*60)
 print(base_airbnb.iloc[0])
-#Tratando 'price'
+# Tratando 'price'
 base_airbnb['price'] = base_airbnb['price'].str.replace('$', '')
 base_airbnb['price'] = base_airbnb['price'].str.replace(',', '')
-base_airbnb['price'] = base_airbnb['price'].astype(np.float32, copy=False)#float32 é mais ágil, em projetos assim é interessante
-#Tratando 'extra_people'
+base_airbnb['price'] = base_airbnb['price'].astype(np.float32, copy=False)  # float32 é mais ágil, em projetos assim é interessante
+# Tratando 'extra_people'
 base_airbnb['extra_people'] = base_airbnb['extra_people'].str.replace('$', '')
 base_airbnb['extra_people'] = base_airbnb['extra_people'].str.replace(',', '')
-base_airbnb['extra_people'] = base_airbnb['extra_people'].astype(np.float32, copy=False)#float32 é mais ágil, em projetos assim é interessante
+base_airbnb['extra_people'] = base_airbnb['extra_people'].astype(np.float32, copy=False)  # float32 é mais ágil, em projetos assim é interessante
 
 ### 5 - Análise exploratória:
-##. Ver a correlação entre as features(Caso tenha colunas muito correlacionadas, poderiamos excluir uma delas)
+##. Ver a correlação entre as features(Caso tenha colunas muito correlacionadas, poderíamos excluir uma delas)
 plt.figure(figsize=(15, 10))  # Ajustando o tamanho da figura
 
 # Criando o heatmap
@@ -103,6 +104,8 @@ plt.subplots_adjust(bottom=0.2)
 plt.show()
 
 ##. Excluir outliers(Q1 - 1.5*Amplitude e Q3 + 1.5*Amplitude)(Amplitude = Q3 - Q1)
+
+
 def limites(coluna):
     q1 = coluna.quantile(0.25)
     q3 = coluna.quantile(0.75)
@@ -110,14 +113,18 @@ def limites(coluna):
     limSup = q3 + 1.5 * amplitude
     limInf = q1 - 1.5 * amplitude
     return limInf, limSup
+
+
 def excluirOutliers(df, nome_coluna):
-    #Exclusão dos outliers
-    qtde_linhas = df.shape[0]#Indice 0 -> Linhas 1 -> Colunas
+    # Exclusão dos outliers
+    qtde_linhas = df.shape[0]  # Indice 0 -> Linhas 1 -> Colunas
     limInf, limSup = limites(df[nome_coluna])
     df = df.loc[(df[nome_coluna] >= limInf) & (df[nome_coluna] <= limSup), :]
-    #Conta quantas linhas foram excluidas
+    # Conta quantas linhas foram excluídas
     linhas_removidas = qtde_linhas - df.shape[0]
     return df, linhas_removidas, nome_coluna
+
+
 def boxPlot(coluna):
     fig, (ax1, ax2) = plt.subplots(1, 2)
     fig.set_size_inches(15, 5)
@@ -132,6 +139,8 @@ def boxPlot(coluna):
 
     fig.suptitle('Com outliers vs Sem outliers', fontsize=16)
     plt.show()
+
+
 def histograma(base, coluna):
     fig, (ax1, ax2) = plt.subplots(1, 2)
     fig.set_size_inches(15, 5)
@@ -148,6 +157,8 @@ def histograma(base, coluna):
 
     fig.suptitle('Com outliers vs Sem outliers', fontsize=16)
     plt.show()
+
+
 def barra(base, coluna):
     fig, (ax1, ax2) = plt.subplots(1, 2)
     fig.set_size_inches(15, 5)
@@ -167,6 +178,8 @@ def barra(base, coluna):
 
     fig.suptitle('Com outliers vs Sem outliers', fontsize=16)
     plt.show()
+
+
 def countplot(base, coluna):
     plt.figure(figsize=(15, 5))
     grafico = sns.countplot(x=coluna, data=base)
@@ -174,75 +187,76 @@ def countplot(base, coluna):
     plt.tight_layout()  # Ajusta automaticamente o layout para evitar cortes
     plt.show()
 
-#Análise coluna price(contínuo):
+
+# Análise coluna price(contínuo):
 boxPlot(base_airbnb['price'])
 histograma(base_airbnb, 'price')
-#Como estamos construindo um modelo para imóveis comuns, valores acima do limite superior são considerados de luxo, fugindo do objetivo principal.
+# Como estamos construindo um modelo para imóveis comuns, valores acima do limite superior são considerados de luxo, fugindo do objetivo principal.
 base_airbnb, linhas_removidas, nome_coluna = excluirOutliers(base_airbnb, 'price')
-print(f'{nome_coluna} - Foram excluidas {linhas_removidas} linhas de Outliers')
+print(f'{nome_coluna} - Foram excluídas {linhas_removidas} linhas de Outliers')
 
-#Análise coluna extra_people(contínuo):
+# Análise coluna extra_people(contínuo):
 boxPlot(base_airbnb['extra_people'])
 histograma(base_airbnb, 'extra_people')
 base_airbnb, linhas_removidas, nome_coluna = excluirOutliers(base_airbnb, 'extra_people')
-print(f'{nome_coluna} - Foram excluidas {linhas_removidas} linhas de Outliers')
+print(f'{nome_coluna} - Foram excluídas {linhas_removidas} linhas de Outliers')
 
-#Análise coluna host_listings_count(discreto):
+# Análise coluna host_listings_count(discreto):
 boxPlot(base_airbnb['host_listings_count'])
 barra(base_airbnb, base_airbnb['host_listings_count'])
-#Podemos excluir os outliers, pois hosts com mais de 6 imóveis no airbnb não é o público alvo do objetivo(imobiliarias,etc).
+# Podemos excluir os outliers, pois hosts com mais de 6 imóveis no airbnb não é o público alvo do objetivo(imobiliárias, etc).
 base_airbnb, linhas_removidas, nome_coluna = excluirOutliers(base_airbnb, 'host_listings_count')
-print(f'{nome_coluna} - Foram excluidas {linhas_removidas} linhas de Outliers')
+print(f'{nome_coluna} - Foram excluídas {linhas_removidas} linhas de Outliers')
 
-#Análise coluna accommodates(discreto):
+# Análise coluna accommodates(discreto):
 boxPlot(base_airbnb['accommodates'])
 barra(base_airbnb, base_airbnb['accommodates'])
-#Casas com 9 acomodações serão excluidas, não é o objetivo do projeto
+# Casas com 9 acomodações serão excluídas, não é o objetivo do projeto
 base_airbnb, linhas_removidas, nome_coluna = excluirOutliers(base_airbnb, 'accommodates')
-print(f'{nome_coluna} - Foram excluidas {linhas_removidas} linhas de Outliers')
+print(f'{nome_coluna} - Foram excluídas {linhas_removidas} linhas de Outliers')
 
-#Análise coluna bathrooms(discreto):
+# Análise coluna bathrooms(discreto):
 boxPlot(base_airbnb['bathrooms'])
-#A função de gráfico de barra estava dando erro para esse caso, logo iremos tratar especificamente:
+# A função de gráfico de barra estava dando erro para esse caso, logo iremos tratar especificamente:
 plt.figure(figsize=(15, 5))
 sns.barplot(x=base_airbnb['bathrooms'].value_counts().index, y=base_airbnb['bathrooms'].value_counts())
 plt.show()
 base_airbnb, linhas_removidas, nome_coluna = excluirOutliers(base_airbnb, 'bathrooms')
-print(f'{nome_coluna} - Foram excluidas {linhas_removidas} linhas de Outliers')
+print(f'{nome_coluna} - Foram excluídas {linhas_removidas} linhas de Outliers')
 
-#Análise coluna bedrooms(discreto):
+# Análise coluna bedrooms(discreto):
 boxPlot(base_airbnb['bedrooms'])
 barra(base_airbnb, base_airbnb['bedrooms'])
 base_airbnb, linhas_removidas, nome_coluna = excluirOutliers(base_airbnb, 'bedrooms')
-print(f'{nome_coluna} - Foram excluidas {linhas_removidas} linhas de Outliers')
+print(f'{nome_coluna} - Foram excluídas {linhas_removidas} linhas de Outliers')
 
-#Análise coluna beds(discreto):
+# Análise coluna beds(discreto):
 boxPlot(base_airbnb['beds'])
 barra(base_airbnb, base_airbnb['beds'])
 base_airbnb, linhas_removidas, nome_coluna = excluirOutliers(base_airbnb, 'beds')
-print(f'{nome_coluna} - Foram excluidas {linhas_removidas} linhas de Outliers')
+print(f'{nome_coluna} - Foram excluídas {linhas_removidas} linhas de Outliers')
 
-#Análise coluna guests_included(discreto):
+# Análise coluna guests_included(discreto):
 sns.barplot(x=base_airbnb['guests_included'].value_counts().index, y=base_airbnb['guests_included'].value_counts())
-#Não parece uma boa métrica, vamos remover a coluna da análise
+# Não parece uma boa métrica, vamos remover a coluna da análise
 base_airbnb = base_airbnb.drop('guests_included', axis=1)
 
-#Análise coluna minimum_nights(discreto):
+# Análise coluna minimum_nights(discreto):
 boxPlot(base_airbnb['minimum_nights'])
 barra(base_airbnb, base_airbnb['minimum_nights'])
 base_airbnb, linhas_removidas, nome_coluna = excluirOutliers(base_airbnb, 'minimum_nights')
-print(f'{nome_coluna} - Foram excluidas {linhas_removidas} linhas de Outliers')
+print(f'{nome_coluna} - Foram excluídas {linhas_removidas} linhas de Outliers')
 
-#Análise coluna maximum_nights(discreto):
+# Análise coluna maximum_nights(discreto):
 boxPlot(base_airbnb['maximum_nights'])
 barra(base_airbnb, base_airbnb['maximum_nights'])
-#Parece haver o mal preenchimento desse campo por parte dos usuários, sendo assim, devemos remover essa coluna para não atrapalhar a análise
+# Parece haver o mal preenchimento desse campo por parte dos usuários, sendo assim, devemos remover essa coluna para não atrapalhar a análise
 base_airbnb = base_airbnb.drop('maximum_nights', axis=1)
 
-#Análise coluna number_of_reviews(discreto):
+# Análise coluna number_of_reviews(discreto):
 boxPlot(base_airbnb['number_of_reviews'])
 barra(base_airbnb, base_airbnb['number_of_reviews'])
-#Poderiamos tirar ou não essa coluna da análise, a fim de desempenho computacional, irei tirar:
+# Poderíamos tirar ou não essa coluna da análise, a fim de desempenho computacional, irei tirar:
 base_airbnb = base_airbnb.drop('number_of_reviews', axis=1)
 
 
@@ -265,7 +279,7 @@ countplot(base_airbnb, 'room_type')
 # Análise coluna bed_type(categórica):
 print(base_airbnb['bed_type'].value_counts())
 countplot(base_airbnb, 'bed_type')
-#Agrupando tipos de cama que são minorias
+# Agrupando tipos de cama que são minorias
 colunas_agrupar = []
 tabela_tipos_cama = base_airbnb['bed_type'].value_counts()
 for tipo in tabela_tipos_cama.index:
@@ -275,11 +289,10 @@ for tipo in colunas_agrupar:
     base_airbnb.loc[base_airbnb['bed_type'] == tipo, 'bed_type'] = 'Other'
 print(base_airbnb['bed_type'].value_counts())
 
-
 # Análise coluna cancellation_policy(categórica):
 print(base_airbnb['cancellation_policy'].value_counts())
 countplot(base_airbnb, 'cancellation_policy')
-#Agrupando tipos de politicas de cancelamento muito parecidas
+# Agrupando tipos de políticas de cancelamento muito parecidas
 colunas_agrupar = []
 tabela_tipos_politica = base_airbnb['cancellation_policy'].value_counts()
 for tipo in tabela_tipos_politica.index:
@@ -291,9 +304,26 @@ print(base_airbnb['cancellation_policy'].value_counts())
 
 # Análise coluna amenities(categórica):
 print(base_airbnb['amenities'].value_counts())
-#Iremos avaliar com base na quantidade de comodidades, e não nas comodidades em si, devido a grande quantidade de tipos e maneiras de escrita de uma mesma comodidade
+# Iremos avaliar com base na quantidade de comodidades, e não nas comodidades em si, devido à grande quantidade de tipos e maneiras de escrita de uma mesma comodidade
 base_airbnb['n_amenities'] = base_airbnb['amenities'].str.split(',').apply(len)
-#Remover a coluna amenities
+# Remover a coluna amenities
 base_airbnb = base_airbnb.drop('amenities', axis=1)
 
+# Análise nova coluna n_amenities
+boxPlot(base_airbnb['n_amenities'])
+barra(base_airbnb, base_airbnb['n_amenities'])
+base_airbnb, linhas_removidas, nome_coluna = excluirOutliers(base_airbnb, 'n_amenities')
+print(f'{nome_coluna} - Foram excluídas {linhas_removidas} linhas de Outliers')
+
+# Análise colunas de mapa (Latitude e Longitude)
+amostra = base_airbnb.sample(n=50000)
+centro_mapa = {'lat':amostra.latitude.mean(), 'lon':amostra.longitude.mean()}
+mapa = px.density_mapbox(amostra, lat='latitude', lon='longitude',z='price', radius=2.5,
+            center=centro_mapa, zoom=10,
+            mapbox_style='stamen-terrain')
+mapa.update_layout(mapbox_style="open-street-map")
+mapa.show()
+
 ##. Confirmar que todas as features que temos fazem realmente sentido para o nosso modelo
+
+
