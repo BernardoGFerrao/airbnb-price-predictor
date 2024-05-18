@@ -289,4 +289,11 @@ for tipo in colunas_agrupar:
     base_airbnb.loc[base_airbnb['cancellation_policy'] == tipo, 'cancellation_policy'] = 'strict'
 print(base_airbnb['cancellation_policy'].value_counts())
 
+# Análise coluna amenities(categórica):
+print(base_airbnb['amenities'].value_counts())
+#Iremos avaliar com base na quantidade de comodidades, e não nas comodidades em si, devido a grande quantidade de tipos e maneiras de escrita de uma mesma comodidade
+base_airbnb['n_amenities'] = base_airbnb['amenities'].str.split(',').apply(len)
+#Remover a coluna amenities
+base_airbnb = base_airbnb.drop('amenities', axis=1)
+
 ##. Confirmar que todas as features que temos fazem realmente sentido para o nosso modelo
