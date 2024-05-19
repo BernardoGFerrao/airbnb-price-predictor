@@ -331,6 +331,41 @@ for coluna in colunas_vf:
 #Categóricas -> OneHotEncoding ou DummyVariables
 colunas_cat = ['property_type', 'room_type', 'bed_type', 'cancellation_policy']
 base_airbnb_cod = pd.get_dummies(data=base_airbnb_cod, columns=colunas_cat)
-##. Confirmar que todas as features que temos fazem realmente sentido para o nosso modelo
+
+#Passos para criar construir um modelo de previsão:
+#1: Escolher o tipo de machine learning: Classificação X Regressão
+#   - Classificação: Categorias(Separar entre A, B e C)(Ex:Diagnóstico doença, Spam, ...)
+#   - Regressão: Valor específico(Número)(Ex: Preço, Velocidade, ...)
+#2: Definir as métricas para avaliação do modelo:
+#   - R²
+#       - De 0 a 1 -> Quanto maior, melhor
+#       - Explicação: Mede o "quanto" dos valores o modelo consegue explicar
+#       - Ex: 92% significa que o modelo consegue explicar 92% da variância dos dados a partir das informações que são dadas
+#   - RSME(Raiz do erro quadrático médio)
+#       - Pode ser qualquer valor
+#       - Mede o "quanto" o modelo erra
+#3: Definir os modelos de regressão que iremos usar:
+#   - Regressão linear
+#       - Traça a "melhor" reta entre os pontos minimizando os erros
+#   - Random forest
+#       - Escolhe aleatoriamente características e procura o melhor lugar para dividir os dados. Usa amostras dos dados com repetição. Boa escolha geral, especialmente para dados menores e limpos
+#   - Regressão linear
+#       - Escolhe completamente aleatório onde dividir os dados. Pode usar todos os dados ou amostras sem repetição. Mais rápido e pode lidar bem com dados muito ruidosos
+#4: Treinar e testar o modelo
+#   - Dividir a base de dados em 2 conjuntos: Treino e Teste
+#   - 80% treino - Usam para aprender(Possuem acesso as caracteristicas do imóvel(X) e ao preço(Y))
+#   - 20% teste  - Usam para testar(Possuem as caracteristicas do imóvel(X) e tentam precifica-lo(Y))
+#5: Comparar os modelos e escolher o melhor
+#   - Calcularemos as duas métricas para cada modelo
+#   - Escolhemos 1 métrica para ser a principal e usaremos a outra para critério de desempate
+#   - Além disso, devemos levar em conta o tempo e a complexidade
+#6: Analisar o melhor modelo mais a fundo
+#   - Entender a importância de cada feature para ver oportunidades de melhora
+#   - Se uma feature/coluna não é utilizada, ou pouco importante, podemos retirar e ver o resultado
+#   - Lembrar de avaliar: Métricas, velocidade e simplicidade do modelo
+#7: Fazer ajustes no melhor modelo
+#   - Após tirarmos as feature, treinar novamente o modelo e analisar as métricas
+#   - Caso não haja diferenças significativas nas métricas, talvez a diferença de tempo ou complexidade seja razoavel
+
 
 
