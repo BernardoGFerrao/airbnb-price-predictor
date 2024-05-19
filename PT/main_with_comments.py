@@ -375,7 +375,7 @@ base_airbnb_cod = pd.get_dummies(data=base_airbnb_cod, columns=colunas_cat)
 def avaliar_modelo(nome_modelo, y_teste, previsao):
     r2 = r2_score(y_teste, previsao)
     rsme = np.sqrt(mean_squared_error(y_teste, previsao))
-    return f"Modelo {nome_modelo}\n- R²: {r2}\n- RSME{rsme}"
+    return f"Modelo {nome_modelo}\n- R²: {r2:.2%}\n- RSME: {rsme:.2f}"
 
 #Separação das variáveis
 y = base_airbnb_cod['price']
@@ -392,9 +392,60 @@ modelos = {'RandomForest': modelo_RandomForest,
 
 x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=10)
 
-for nome_modelo, modelo in modelos.items():
-    #treinar
-    modelo.fit(x_train, y_train)
-    #testar
-    previsao = modelo.predict(x_test)
-    print(avaliar_modelo(nome_modelo, y_test, previsao))
+def escolher_modelo(modelos):
+    for nome_modelo, modelo in modelos.items():
+        #treinar
+        modelo.fit(x_train, y_train)
+        #testar
+        previsao = modelo.predict(x_test)
+        print(avaliar_modelo(nome_modelo, y_test, previsao))
+#escolher_modelo(modelos)#Essa linha foi comentada após a escolha do modelo
+
+#Após avaliarmos, o modelo ExtraTrees é o melhor modelo tanto no R² quanto no RSME
+print(modelo_ExtraTrees.feature_importances_)
+print(x_train.columns)
+importancia_features = pd.DataFrame(modelo_ExtraTrees.feature_importances_, x_train.columns)
+
+#Ordenar:
+importancia_features = importancia_features.sort_values(by=0, ascending=False)
+
+#Exibir em gráfico:
+plt.figure(figsize=(15, 5))
+ax = sns.barplot(x=importancia_features.index, y=importancia_features[0])
+ax.tick_params(axis='x', rotation=90)
+plt.tight_layout()  # Ajusta automaticamente o layout para evitar cortes
+plt.show()
+print(importancia_features)
+
+#Analisando a importância das features percebemos:
+#   - A importância da localização, quantidade de quartos e número de conmodidades(tv, ar condicionado, etc...) para o preço
+#   - Outras colunas como banheiros, pessoas extras e acomodações também possuem grande influência
+#   - Features com menor importância serão removidas tais como: is_business_travel_ready, room_type_Hotel room, property_type_Hostel, property_type_Guest suite, cancellation_policy_strict, property_type_Guesthouse, property_type_Bed and breakfast, room_type_Shared room, property_type_Loft, property_type_Serviced apartment, property_type_Other
+lista_remover = ['is_business_travel_ready', 'room_type_Hotel room', 'property_type_Hostel', 'property_type_Guest suite', 'cancellation_policy_strict', 'property_type_Guesthouse', 'property_type_Bed and breakfast', 'room_type_Shared room', 'property_type_Loft', 'property_type_Serviced apartment', 'property_type_Other']
+
+#Remoção colunas
+for coluna in lista_remover:
+    base_airbnb_cod = base_airbnb_cod.drop(coluna, axis=1)
+
+y = base_airbnb_cod['price']
+x = base_airbnb_cod.drop('price', axis=1)
+
+x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=10)
+
+modelo_ExtraTrees.fit(x_train, y_train)
+previsao = modelo_ExtraTrees.predict(x_test)
+print(avaliar_modelo('modelo_ExtraTrees', y_test, previsao))
+
+importancia_features = pd.DataFrame(modelo_ExtraTrees.feature_importances_, x_train.columns)
+importancia_features = importancia_features.sort_values(by=0, ascending=False)
+
+#Exibir em gráfico:
+plt.figure(figsize=(15, 5))
+ax = sns.barplot(x=importancia_features.index, y=importancia_features[0])
+ax.tick_params(axis='x', rotation=90)
+plt.tight_layout()  # Ajusta automaticamente o layout para evitar cortes
+plt.show()
+print(importancia_features)
+#Após a remoção dessas colunas tornamos o modelo bem mais simples sem alterar tanto o seu poder de previsão
+
+#Deploy:
