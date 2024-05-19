@@ -7,6 +7,9 @@ import matplotlib.pyplot as plt
 from tabulate import tabulate  # -> print(tabulate(df.head(2), headers=df.columns, tablefmt='pretty'))
 import plotly.express as px
 from sklearn.metrics import r2_score, mean_squared_error
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor, ExtraTreesRegressor
+from sklearn.model_selection import train_test_split
 
 ### README:
 ### 1 - Entendimento do Desafio que você quer resolver
@@ -374,3 +377,24 @@ def avaliar_modelo(nome_modelo, y_teste, previsao):
     rsme = np.sqrt(mean_squared_error(y_teste, previsao))
     return f"Modelo {nome_modelo}\n- R²: {r2}\n- RSME{rsme}"
 
+#Separação das variáveis
+y = base_airbnb_cod['price']
+x = base_airbnb_cod.drop('price', axis=1)
+
+#Separa os dados em treino e teste + treino do modelo
+modelo_RandomForest = RandomForestRegressor()
+modelo_LinearRegression = LinearRegression()
+modelo_ExtraTrees = ExtraTreesRegressor()
+
+modelos = {'RandomForest': modelo_RandomForest,
+           'LinearRegression': modelo_LinearRegression,
+           'ExtraTrees': modelo_ExtraTrees}
+
+x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=10)
+
+for nome_modelo, modelo in modelos.items():
+    #treinar
+    modelo.fit(x_train, y_train)
+    #testar
+    previsao = modelo.predict(x_test)
+    print(avaliar_modelo(nome_modelo, y_test, previsao))
