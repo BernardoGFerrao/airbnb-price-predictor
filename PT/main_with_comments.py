@@ -6,6 +6,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from tabulate import tabulate  # -> print(tabulate(df.head(2), headers=df.columns, tablefmt='pretty'))
 import plotly.express as px
+from sklearn.metrics import r2_score, mean_squared_error
 
 ### README:
 ### 1 - Entendimento do Desafio que você quer resolver
@@ -367,5 +368,9 @@ base_airbnb_cod = pd.get_dummies(data=base_airbnb_cod, columns=colunas_cat)
 #   - Após tirarmos as feature, treinar novamente o modelo e analisar as métricas
 #   - Caso não haja diferenças significativas nas métricas, talvez a diferença de tempo ou complexidade seja razoavel
 
-
+#Definindo as métricas:
+def avaliar_modelo(nome_modelo, y_teste, previsao):
+    r2 = r2_score(y_teste, previsao)
+    rsme = np.sqrt(mean_squared_error(y_teste, previsao))
+    return f"Modelo {nome_modelo}\n- R²: {r2}\n- RSME{rsme}"
 
