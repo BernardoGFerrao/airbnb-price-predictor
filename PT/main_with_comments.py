@@ -406,4 +406,4 @@ print(importancia_features)
 x['price'] = y
 x.to_csv('dados.csv')
 
-joblib.dump(modelo_ExtraTrees, 'modelo.joblib')
+#joblib.dump(modelo_ExtraTrees, 'modelo.joblib')
