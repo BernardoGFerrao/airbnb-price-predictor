@@ -406,4 +406,4 @@ print(feature_importance)
 x['price'] = y
 x.to_csv('data.csv')
 
-joblib.dump(model_ExtraTrees, 'modelo.joblib')
+#joblib.dump(modelo_ExtraTrees, 'model_compression_level_1.joblib', compress=1)

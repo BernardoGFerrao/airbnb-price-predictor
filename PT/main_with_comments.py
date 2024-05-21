@@ -362,36 +362,35 @@ def escolher_modelo(modelos):
 #    - A importância da localização, quantidade de quartos e número de comodidades (tv, ar condicionado, etc...) para o preço
 #    - Outras colunas como banheiros, pessoas extras e acomodações também possuem grande influência
 #    - Features com menor importância serão removidas tais como: is_business_travel_ready, room_type_Hotel room, property_type_Hostel, property_type_Guest suite, cancellation_policy_strict, property_type_Guesthouse, property_type_Bed and breakfast, room_type_Shared room, property_type_Loft, property_type_Serviced apartment, property_type_Other
-lista_remover = [
-    'is_business_travel_ready', 'room_type_Hotel room', 'property_type_Hostel',
-    'property_type_Guest suite', 'cancellation_policy_strict', 'property_type_Guesthouse',
-    'property_type_Bed and breakfast', 'room_type_Shared room', 'property_type_Loft',
-    'property_type_Serviced apartment', 'property_type_Other'
-]
-
+# lista_remover = [
+# 'is_business_travel_ready', 'room_type_Hotel room', 'property_type_Hostel',
+# 'property_type_Guest suite', 'cancellation_policy_strict', 'property_type_Guesthouse',
+# 'property_type_Bed and breakfast', 'room_type_Shared room', 'property_type_Loft',
+# 'property_type_Serviced apartment', 'property_type_Other'
+# ]
+# lista_remover = [
+#     'is_business_travel_ready'
+# ]
 # Remoção colunas
-for coluna in lista_remover:
-    base_airbnb_cod = base_airbnb_cod.drop(coluna, axis=1)
+# for coluna in lista_remover:
+#     base_airbnb_cod = base_airbnb_cod.drop(coluna, axis=1)
 
+for coluna in base_airbnb_cod:
+    if 'bed_type' in coluna:
+        base_airbnb_cod = base_airbnb_cod.drop(coluna, axis=1)
+
+base_airbnb_cod = base_airbnb_cod.drop('is_business_travel_ready', axis=1)
+
+# Após a remoção dessas colunas tornamos o modelo bem mais simples sem alterar tanto o seu poder de previsão
 y = base_airbnb_cod['price']
 x = base_airbnb_cod.drop('price', axis=1)
 
 x_train, x_test, y_train, y_test = train_test_split(x, y, random_state=10)
+print(x_train.columns)
+
 modelo_ExtraTrees.fit(x_train, y_train)
 previsao = modelo_ExtraTrees.predict(x_test)
-print(avaliar_modelo('modelo_ExtraTrees', y_test, previsao))
-
-importancia_features = pd.DataFrame(modelo_ExtraTrees.feature_importances_, x_train.columns)
-importancia_features = importancia_features.sort_values(by=0, ascending=False)
-
-# Exibir em gráfico:
-plt.figure(figsize=(15, 5))
-ax = sns.barplot(x=importancia_features.index, y=importancia_features[0])
-ax.tick_params(axis='x', rotation=90)
-plt.tight_layout()
-plt.show()
-print(importancia_features)
-# Após a remoção dessas colunas tornamos o modelo bem mais simples sem alterar tanto o seu poder de previsão
+print(avaliar_modelo('ExtraTrees', y_test, previsao))
 
 ### Deploy:
 # Passo 1 -> Criar um arquivo do modelo (joblib)
@@ -406,4 +405,4 @@ print(importancia_features)
 x['price'] = y
 x.to_csv('dados.csv')
 
-#joblib.dump(modelo_ExtraTrees, 'modelo.joblib')
+#joblib.dump(modelo_ExtraTrees, 'modelo_compression_level_1.joblib', compress=1)
