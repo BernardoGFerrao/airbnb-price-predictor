@@ -3,7 +3,7 @@ import streamlit as st
 import joblib
 
 ##Variáveis:
-#Numeric
+#Numeric(ano = year; mes = month)
 x_numeric = {'latitude': 0,
              'longitude': 0,
              'accommodates': 0,
@@ -34,13 +34,17 @@ for item in x_numeric:
         valor = st.number_input(f'{item}', step=0.00001, value=0.0, format="%.5f")
     elif item == 'extra_people':
         valor = st.number_input(f'{item}', step=0.01, value=0.0)
+    elif item == 'ano':
+        valor = st.number_input(f'{item}/year',  value=0)
+    elif item == 'mes':
+        valor = st.number_input(f'{item}/month', value=0)
     else:
         valor = st.number_input(f'{item}', value=0)
     x_numeric[item] = valor
 
 for item in x_boolean:
-    valor = st.selectbox(f'{item}', ('Sim', 'Não'))
-    if valor == "Sim":
+    valor = st.selectbox(f'{item}', ('Sim/Yes', 'Não/No'))
+    if valor == "Sim/Yes":
         x_boolean[item] = 1
     else:
         x_boolean[item] = 0
@@ -65,5 +69,5 @@ if botao:
     preco = modelo.predict(valores_x)
     st.write(preco[0])
 
-#cd C:\Github\airbnb-price-predictor\PT
-#streamlit run C:\Github\airbnb-price-predictor\PT\deploy.py
+#cd C:\Github\airbnb-price-predictor
+#streamlit run C:\Github\airbnb-price-predictor\deploy.py
